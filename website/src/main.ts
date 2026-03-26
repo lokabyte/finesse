@@ -153,25 +153,55 @@ function renderHome() {
     <section class="pb-20 px-6" id="install">
       <div class="max-w-6xl mx-auto">
         <h2 class="text-lg font-sans font-semibold text-ink mb-8">Install</h2>
-        <div class="bg-surface-raised rounded-lg border border-ink-faint/10 p-6 max-w-2xl">
-          <div class="space-y-4">
-            <div>
-              <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">1. Clone</div>
-              <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
-                <code class="text-sm text-ink">git clone git@github.com:lokabyte/finesse.git ~/finesse</code>
+        <!-- Clone step (shared) -->
+        <div class="bg-surface-raised rounded-lg border border-ink-faint/10 p-4 max-w-2xl mb-4">
+          <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">1. Clone</div>
+          <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+            <code class="text-sm text-ink">git clone git@github.com:lokabyte/finesse.git ~/finesse</code>
+          </div>
+        </div>
+
+        <!-- Tab switcher -->
+        <div class="max-w-2xl">
+          <div class="flex gap-4 mb-4 text-xs">
+            <button class="install-tab text-ink font-semibold border-b border-ink pb-1" data-tab="claude">Claude Code</button>
+            <button class="install-tab text-ink-faint hover:text-ink-muted transition-colors pb-1" data-tab="cursor">Cursor</button>
+          </div>
+
+          <!-- Claude Code -->
+          <div class="install-panel bg-surface-raised rounded-lg border border-ink-faint/10 p-4" data-panel="claude">
+            <div class="space-y-4">
+              <div>
+                <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">2. Add skill directory</div>
+                <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+                  <code class="text-sm text-ink">/add-dir ~/finesse/skill</code>
+                </div>
+                <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">Or pass <code class="text-ink-muted">--add-dir ~/finesse/skill</code> when launching Claude Code.</p>
+              </div>
+              <div>
+                <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">3. Verify</div>
+                <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+                  <code class="text-sm text-ink">/audit your-component.tsx</code>
+                </div>
               </div>
             </div>
-            <div>
-              <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">2. Add to Claude Code</div>
-              <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
-                <code class="text-sm text-ink">/add-dir ~/finesse/skill</code>
+          </div>
+
+          <!-- Cursor -->
+          <div class="install-panel bg-surface-raised rounded-lg border border-ink-faint/10 p-4 hidden" data-panel="cursor">
+            <div class="space-y-4">
+              <div>
+                <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">2. Add as project rules</div>
+                <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+                  <code class="text-sm text-ink">cp ~/finesse/skill/SKILL.md .cursor/rules/finesse.md</code>
+                </div>
+                <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">Copy individual skill files from <code class="text-ink-muted">~/finesse/skill/.claude/skills/</code> as needed.</p>
               </div>
-              <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">Or pass <code class="text-ink-muted">--add-dir ~/finesse/skill</code> when launching Claude Code.</p>
-            </div>
-            <div>
-              <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">3. Verify</div>
-              <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
-                <code class="text-sm text-ink">/audit your-component.tsx</code>
+              <div>
+                <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">3. Verify</div>
+                <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+                  <code class="text-sm text-ink">Ask Cursor: "audit this component against the design system"</code>
+                </div>
               </div>
             </div>
           </div>
@@ -185,6 +215,7 @@ function renderHome() {
   initMindmapInteractions();
   initCopyButton();
   initThemeToggle();
+  initInstallTabs();
 }
 
 // ─── Cheat Sheet page ─────────────────────────────────────────
@@ -217,6 +248,25 @@ function footer(): string {
       </div>
     </footer>
   `;
+}
+
+// ─── Install tabs ────────────────────────────────────────────
+function initInstallTabs() {
+  document.querySelectorAll<HTMLButtonElement>('.install-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab!;
+      document.querySelectorAll('.install-tab').forEach(t => {
+        t.classList.toggle('text-ink', t.getAttribute('data-tab') === target);
+        t.classList.toggle('font-semibold', t.getAttribute('data-tab') === target);
+        t.classList.toggle('border-b', t.getAttribute('data-tab') === target);
+        t.classList.toggle('border-ink', t.getAttribute('data-tab') === target);
+        t.classList.toggle('text-ink-faint', t.getAttribute('data-tab') !== target);
+      });
+      document.querySelectorAll('.install-panel').forEach(p => {
+        p.classList.toggle('hidden', p.getAttribute('data-panel') !== target);
+      });
+    });
+  });
 }
 
 // ─── Copy to clipboard ───────────────────────────────────────
