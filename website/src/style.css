@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ── Light mode (default) ── */
+  :root {
+    --surface: 255 255 255;
+    --surface-raised: 245 245 245;
+    --surface-elevated: 235 235 235;
+    --ink: 26 26 26;
+    --ink-muted: 85 85 85;
+    --ink-faint: 156 163 175;
+    --canvas: 248 248 248;
+
+    /* Module accents — richer for light backgrounds (RGB channels) */
+    --c-scan: 239 68 68;
+    --c-scan-dim: rgba(239, 68, 68, 0.08);
+    --c-refine: 22 163 74;
+    --c-refine-dim: rgba(22, 163, 74, 0.08);
+    --c-reshape: 37 99 235;
+    --c-reshape-dim: rgba(37, 99, 235, 0.08);
+    --c-elevate: 219 39 119;
+    --c-elevate-dim: rgba(219, 39, 119, 0.08);
+    --c-dial: 217 119 6;
+    --c-dial-dim: rgba(217, 119, 6, 0.08);
+    --c-voice: 139 92 246;
+    --c-voice-dim: rgba(139, 92, 246, 0.08);
+    --c-learn: 107 114 128;
+    --c-learn-dim: rgba(107, 114, 128, 0.08);
+  }
+
+  /* ── Dark mode ── */
+  .dark {
+    --surface: 10 10 10;
+    --surface-raised: 20 20 20;
+    --surface-elevated: 30 30 30;
+    --ink: 250 250 250;
+    --ink-muted: 161 161 170;
+    --ink-faint: 82 82 91;
+    --canvas: 17 17 17;
+
+    --c-scan: 248 113 113;
+    --c-scan-dim: rgba(248, 113, 113, 0.15);
+    --c-refine: 74 222 128;
+    --c-refine-dim: rgba(74, 222, 128, 0.15);
+    --c-reshape: 96 165 250;
+    --c-reshape-dim: rgba(96, 165, 250, 0.15);
+    --c-elevate: 244 114 182;
+    --c-elevate-dim: rgba(244, 114, 182, 0.15);
+    --c-dial: 251 191 36;
+    --c-dial-dim: rgba(251, 191, 36, 0.15);
+    --c-voice: 167 139 250;
+    --c-voice-dim: rgba(167, 139, 250, 0.15);
+    --c-learn: 156 163 175;
+    --c-learn-dim: rgba(156, 163, 175, 0.15);
+  }
+
+  ::selection {
+    @apply bg-ink/20;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-ink-faint/40 rounded-full; }
+}
+
+@layer components {
+  /* FigJam-style dot grid canvas */
+  .canvas-grid {
+    background-image: radial-gradient(circle, rgb(var(--ink-faint) / 0.25) 0.7px, transparent 0.7px);
+    background-size: 24px 24px;
+  }
+}

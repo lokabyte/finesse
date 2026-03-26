@@ -1,0 +1,14 @@
+{
+  "name": "finesse",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ship with finesse. An AI design skill framework — 20 commands, 6 modules.",
+  "author": "BrowserStack",
+  "license": "MIT",
+  "scripts": {
+    "extract": "node scripts/extract-catalog.mjs",
+    "validate": "node scripts/validate-skills.mjs",
+    "dev": "npm run dev --prefix website",
+    "build": "npm run build --prefix website"
+  }
+}
