@@ -135,7 +135,7 @@ function renderHome() {
             <div class="text-2xl font-bold text-ink-faint mb-3">02</div>
             <h3 class="text-sm font-sans font-semibold text-ink mb-2">Load your design system</h3>
             <p class="text-xs text-ink-muted leading-relaxed">
-              Finesse ships with design system context. Swap the skills directory to plug in any design system.
+              Finesse ships with Design Stack context. Swap the skills directory to plug in any design system.
             </p>
           </div>
           <div class="bg-surface-raised rounded-lg border border-ink-faint/10 p-6">
