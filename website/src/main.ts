@@ -172,11 +172,11 @@ function renderHome() {
           <div class="install-panel bg-surface-raised rounded-lg border border-ink-faint/10 p-4" data-panel="claude">
             <div class="space-y-4">
               <div>
-                <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">2. Add skill directory</div>
+                <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">2. Launch with skill directory</div>
                 <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
-                  <code class="text-sm text-ink">/add-dir ~/finesse/skill</code>
+                  <code class="text-sm text-ink">claude --add-dir ~/finesse/skill</code>
                 </div>
-                <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">Or pass <code class="text-ink-muted">--add-dir ~/finesse/skill</code> when launching Claude Code.</p>
+                <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">Skills and slash commands are auto-discovered from the <code class="text-ink-muted">.claude/</code> directory.</p>
               </div>
               <div>
                 <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">3. Verify</div>
