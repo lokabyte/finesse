@@ -26,7 +26,7 @@ export const commands: Command[] = [
   { id: 1,  key: 'AUD',  name: 'audit',     slash: '/audit',     module: 'scan',
     shortDescription: 'Scan against design system rules.',
     description: 'Full structural scan — checks component usage, token compliance, density propagation, composition patterns, accessibility, and responsive behavior against your design system rules.',
-    example: '/audit the Test Management dashboard — Scans the entire dashboard for Design Stack compliance: are the right components used? Are tokens semantic? Does density propagate correctly through tables and cards? Are ARIA roles present?' },
+    example: '/audit the Test Management dashboard — Scans the entire dashboard for DesignStack compliance: are the right components used? Are tokens semantic? Does density propagate correctly through tables and cards? Are ARIA roles present?' },
   { id: 2,  key: 'CRT',  name: 'critique',   slash: '/critique',  module: 'scan',
     shortDescription: 'Visual and UX review.',
     description: 'Simulates a senior designer reviewing your UI — evaluates visual hierarchy, spacing rhythm, information density, affordance clarity, and overall UX coherence.',

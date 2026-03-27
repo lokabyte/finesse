@@ -90,8 +90,7 @@ function renderHome() {
             Ship with<br/>finesse<span class="text-ink-faint">.</span>
           </h1>
           <p class="text-base text-ink-muted leading-relaxed mb-8 max-w-lg">
-            A design vocabulary for AI assistants — 7 modules that teach your tools
-            to build with your design system's language.
+            A design vocabulary for AI-first workflows and teams.
           </p>
 
           <!-- Install snippet -->
