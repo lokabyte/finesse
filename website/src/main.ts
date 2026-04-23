@@ -102,7 +102,7 @@ function renderHome() {
             </button>
           </div>
 
-          <p class="mt-5 text-xs text-ink-muted">Works with Claude Code, Cursor, and more.</p>
+          <p class="mt-5 text-xs text-ink-muted">Works with Claude Code, Cursor, and more. <a href="#install" class="text-ink hover:underline" onclick="setTimeout(()=>{document.querySelector('[data-tab=lite]')?.click()},100)">Try Finesse Lite — one file, zero setup.</a></p>
         </div>
       </div>
     </section>
@@ -112,7 +112,7 @@ function renderHome() {
       <div class="max-w-6xl mx-auto">
         <div class="mb-6">
           <h2 class="text-lg font-sans font-semibold text-ink">The Console</h2>
-          <span class="text-xs text-ink-muted">7 modules · explore the vocabulary</span>
+          <span class="text-xs text-ink-muted">5 commands · explore the vocabulary</span>
         </div>
         ${renderConsoleMindmap()}
       </div>
@@ -141,7 +141,7 @@ function renderHome() {
             <div class="text-2xl font-bold text-ink-faint mb-3">03</div>
             <h3 class="text-sm font-sans font-semibold text-ink mb-2">Run commands</h3>
             <p class="text-xs text-ink-muted leading-relaxed">
-              Use /audit to scan, /polish to refine, /punch to amplify — a vocabulary that speaks your design system's language.
+              Use /review to scan, /fix to align, /ship to harden — 5 commands that speak your design system's language. Use /finesse to ask anything.
             </p>
           </div>
         </div>
@@ -151,59 +151,100 @@ function renderHome() {
     <!-- Install section -->
     <section class="pb-20 px-6" id="install">
       <div class="max-w-6xl mx-auto">
-        <h2 class="text-lg font-sans font-semibold text-ink mb-8">Install</h2>
-        <!-- Clone step (shared) -->
-        <div class="bg-surface-raised rounded-lg border border-ink-faint/10 p-4 max-w-2xl mb-4">
-          <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">1. Clone</div>
-          <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
-            <code class="text-sm text-ink">git clone git@github.com:lokabyte/finesse.git ~/finesse</code>
-          </div>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-stretch">
 
-        <!-- Tab switcher -->
-        <div class="max-w-2xl">
-          <div class="flex gap-4 mb-4 text-xs">
-            <button class="install-tab text-ink font-semibold border-b border-ink pb-1" data-tab="claude">Claude Code</button>
-            <button class="install-tab text-ink-faint hover:text-ink-muted transition-colors pb-1" data-tab="cursor">Cursor</button>
-          </div>
+          <!-- Full install — left (3 cols) -->
+          <div class="lg:col-span-3 flex flex-col">
+            <h2 class="text-lg font-sans font-semibold text-ink mb-6">Install</h2>
 
-          <!-- Claude Code -->
-          <div class="install-panel bg-surface-raised rounded-lg border border-ink-faint/10 p-4" data-panel="claude">
-            <div class="space-y-4">
-              <div>
-                <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">2. Launch with skill directory</div>
-                <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
-                  <code class="text-sm text-ink">claude --add-dir ~/finesse/skill</code>
+            <!-- Tab switcher -->
+            <div class="flex gap-4 mb-4 text-xs">
+              <button class="install-tab text-ink font-semibold border-b border-ink pb-1" data-tab="claude">Claude Code</button>
+              <button class="install-tab text-ink-faint hover:text-ink-muted transition-colors pb-1" data-tab="cursor">Cursor</button>
+            </div>
+
+            <!-- Claude Code -->
+            <div class="install-panel bg-surface-raised rounded-lg border border-ink-faint/10 p-4" data-panel="claude">
+              <div class="space-y-4">
+                <div>
+                  <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">1. Clone</div>
+                  <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+                    <code class="text-sm text-ink">git clone git@github.com:lokabyte/finesse.git ~/finesse</code>
+                  </div>
                 </div>
-                <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">Skills and slash commands are auto-discovered from the <code class="text-ink-muted">.claude/</code> directory.</p>
+                <div>
+                  <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">2. Launch with skill directory</div>
+                  <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+                    <code class="text-sm text-ink">claude --add-dir ~/finesse/skill</code>
+                  </div>
+                  <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">Skills and slash commands are auto-discovered from the <code class="text-ink-muted">.claude/</code> directory.</p>
+                </div>
+                <div>
+                  <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">3. Verify</div>
+                  <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+                    <code class="text-sm text-ink">/review your-component.tsx</code>
+                  </div>
+                </div>
               </div>
-              <div>
-                <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">3. Verify</div>
-                <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
-                  <code class="text-sm text-ink">/audit your-component.tsx</code>
+            </div>
+
+            <!-- Cursor -->
+            <div class="install-panel bg-surface-raised rounded-lg border border-ink-faint/10 p-4 hidden" data-panel="cursor">
+              <div class="space-y-4">
+                <div>
+                  <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">1. Clone</div>
+                  <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+                    <code class="text-sm text-ink">git clone git@github.com:lokabyte/finesse.git ~/finesse</code>
+                  </div>
+                </div>
+                <div>
+                  <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">2. Add as project rules</div>
+                  <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+                    <code class="text-sm text-ink">cp ~/finesse/skill/SKILL.md .cursor/rules/finesse.md</code>
+                  </div>
+                  <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">Copy individual skill files from <code class="text-ink-muted">~/finesse/skill/.claude/skills/</code> as needed.</p>
+                </div>
+                <div>
+                  <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">3. Verify</div>
+                  <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+                    <code class="text-sm text-ink">Ask Cursor: "review this component against the design system"</code>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Cursor -->
-          <div class="install-panel bg-surface-raised rounded-lg border border-ink-faint/10 p-4 hidden" data-panel="cursor">
-            <div class="space-y-4">
-              <div>
-                <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">2. Add as project rules</div>
-                <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
-                  <code class="text-sm text-ink">cp ~/finesse/skill/SKILL.md .cursor/rules/finesse.md</code>
+          <!-- Finesse Lite — right (2 cols) -->
+          <div class="lg:col-span-2 flex flex-col">
+            <h2 class="text-lg font-sans font-semibold text-ink mb-6">Finesse Lite</h2>
+            <p class="text-xs text-ink-muted mb-[21px]">One file. No commands, no setup mode.</p>
+
+            <div class="rounded-lg border border-ink-faint/10 bg-surface-raised p-4 flex-1">
+              <div class="space-y-4">
+                <div>
+                  <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">Download</div>
+                  <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
+                    <code class="text-sm text-ink break-all leading-relaxed">curl -o finesse-lite.md https://raw.githubusercontent.com/lokabyte/finesse/main/finesse-lite.md</code>
+                  </div>
                 </div>
-                <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">Copy individual skill files from <code class="text-ink-muted">~/finesse/skill/.claude/skills/</code> as needed.</p>
-              </div>
-              <div>
-                <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">3. Verify</div>
-                <div class="bg-surface rounded-lg p-3 border border-ink-faint/10">
-                  <code class="text-sm text-ink">Ask Cursor: "audit this component against the design system"</code>
+
+                <div>
+                  <div class="text-xs text-ink-faint mb-2 uppercase tracking-wider">Place in your project</div>
+                  <div class="space-y-2.5">
+                    <div class="bg-surface rounded-lg p-3 border border-ink-faint/10 flex items-center gap-2">
+                      <span class="text-xs text-ink-faint shrink-0 whitespace-nowrap">Claude Code</span>
+                      <code class="text-sm text-ink">mv finesse-lite.md .claude/</code>
+                    </div>
+                    <div class="bg-surface rounded-lg p-3 border border-ink-faint/10 flex items-center gap-2">
+                      <span class="text-xs text-ink-faint shrink-0 w-20">Cursor</span>
+                      <code class="text-sm text-ink">mv finesse-lite.md .cursor/rules/</code>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </section>
