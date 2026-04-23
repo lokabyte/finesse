@@ -13,21 +13,17 @@
     --ink-faint: 156 163 175;
     --canvas: 248 248 248;
 
-    /* Module accents — richer for light backgrounds (RGB channels) */
-    --c-scan: 239 68 68;
-    --c-scan-dim: rgba(239, 68, 68, 0.08);
-    --c-refine: 22 163 74;
-    --c-refine-dim: rgba(22, 163, 74, 0.08);
-    --c-reshape: 37 99 235;
-    --c-reshape-dim: rgba(37, 99, 235, 0.08);
-    --c-elevate: 219 39 119;
-    --c-elevate-dim: rgba(219, 39, 119, 0.08);
-    --c-dial: 217 119 6;
-    --c-dial-dim: rgba(217, 119, 6, 0.08);
-    --c-voice: 139 92 246;
-    --c-voice-dim: rgba(139, 92, 246, 0.08);
-    --c-learn: 107 114 128;
-    --c-learn-dim: rgba(107, 114, 128, 0.08);
+    /* Command accents (RGB channels) */
+    --c-review: 239 68 68;
+    --c-review-dim: rgba(239, 68, 68, 0.08);
+    --c-fix: 22 163 74;
+    --c-fix-dim: rgba(22, 163, 74, 0.08);
+    --c-ship: 37 99 235;
+    --c-ship-dim: rgba(37, 99, 235, 0.08);
+    --c-style: 219 39 119;
+    --c-style-dim: rgba(219, 39, 119, 0.08);
+    --c-words: 139 92 246;
+    --c-words-dim: rgba(139, 92, 246, 0.08);
   }
 
   /* ── Dark mode ── */
@@ -40,20 +36,16 @@
     --ink-faint: 82 82 91;
     --canvas: 17 17 17;
 
-    --c-scan: 248 113 113;
-    --c-scan-dim: rgba(248, 113, 113, 0.15);
-    --c-refine: 74 222 128;
-    --c-refine-dim: rgba(74, 222, 128, 0.15);
-    --c-reshape: 96 165 250;
-    --c-reshape-dim: rgba(96, 165, 250, 0.15);
-    --c-elevate: 244 114 182;
-    --c-elevate-dim: rgba(244, 114, 182, 0.15);
-    --c-dial: 251 191 36;
-    --c-dial-dim: rgba(251, 191, 36, 0.15);
-    --c-voice: 167 139 250;
-    --c-voice-dim: rgba(167, 139, 250, 0.15);
-    --c-learn: 156 163 175;
-    --c-learn-dim: rgba(156, 163, 175, 0.15);
+    --c-review: 248 113 113;
+    --c-review-dim: rgba(248, 113, 113, 0.15);
+    --c-fix: 74 222 128;
+    --c-fix-dim: rgba(74, 222, 128, 0.15);
+    --c-ship: 96 165 250;
+    --c-ship-dim: rgba(96, 165, 250, 0.15);
+    --c-style: 244 114 182;
+    --c-style-dim: rgba(244, 114, 182, 0.15);
+    --c-words: 167 139 250;
+    --c-words-dim: rgba(167, 139, 250, 0.15);
   }
 
   ::selection {

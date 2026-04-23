@@ -12,14 +12,12 @@ export default {
     },
     extend: {
       colors: {
-        // Module accent colors — CSS vars (RGB channels)
-        scan:    { DEFAULT: 'rgb(var(--c-scan) / <alpha-value>)',    dim: 'var(--c-scan-dim)' },
-        refine:  { DEFAULT: 'rgb(var(--c-refine) / <alpha-value>)',  dim: 'var(--c-refine-dim)' },
-        reshape: { DEFAULT: 'rgb(var(--c-reshape) / <alpha-value>)', dim: 'var(--c-reshape-dim)' },
-        elevate: { DEFAULT: 'rgb(var(--c-elevate) / <alpha-value>)', dim: 'var(--c-elevate-dim)' },
-        dial:    { DEFAULT: 'rgb(var(--c-dial) / <alpha-value>)',    dim: 'var(--c-dial-dim)' },
-        voice:   { DEFAULT: 'rgb(var(--c-voice) / <alpha-value>)',   dim: 'var(--c-voice-dim)' },
-        learn:   { DEFAULT: 'rgb(var(--c-learn) / <alpha-value>)',   dim: 'var(--c-learn-dim)' },
+        // Command accent colors — CSS vars (RGB channels)
+        review: { DEFAULT: 'rgb(var(--c-review) / <alpha-value>)', dim: 'var(--c-review-dim)' },
+        fix:    { DEFAULT: 'rgb(var(--c-fix) / <alpha-value>)',    dim: 'var(--c-fix-dim)' },
+        ship:   { DEFAULT: 'rgb(var(--c-ship) / <alpha-value>)',   dim: 'var(--c-ship-dim)' },
+        style:  { DEFAULT: 'rgb(var(--c-style) / <alpha-value>)', dim: 'var(--c-style-dim)' },
+        words:  { DEFAULT: 'rgb(var(--c-words) / <alpha-value>)', dim: 'var(--c-words-dim)' },
 
         // Semantic surfaces & text
         surface: {

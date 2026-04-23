@@ -1,40 +1,36 @@
-import { commands, modules, moduleOrder, getCommandsByModule, type Command, type Module } from '../data/commands';
+import { commands, commandMeta, commandOrder, getCommand, type Command, type CommandKey } from '../data/commands';
 
 /**
  * FigJam-style mind map canvas.
- * - Module nodes on the left, command nodes branch right
- * - Dashed SVG connectors with arrowheads
- * - All nodes are draggable on the canvas
- * - Click a command → detail modal (not navigation)
- * - One module expanded at a time
+ * - Command nodes on the left, mode nodes branch right
+ * - Dashed SVG connectors
+ * - Command nodes are draggable
+ * - Click a mode → detail view
+ * - One command expanded at a time
  */
 
-const accents: Record<Module, { solid: string; faded: string; bg: string }> = {
-  scan:    { solid: 'rgb(var(--c-scan))',    faded: 'rgb(var(--c-scan) / 0.3)',    bg: 'var(--c-scan-dim)' },
-  refine:  { solid: 'rgb(var(--c-refine))',  faded: 'rgb(var(--c-refine) / 0.3)',  bg: 'var(--c-refine-dim)' },
-  reshape: { solid: 'rgb(var(--c-reshape))', faded: 'rgb(var(--c-reshape) / 0.3)', bg: 'var(--c-reshape-dim)' },
-  elevate: { solid: 'rgb(var(--c-elevate))', faded: 'rgb(var(--c-elevate) / 0.3)', bg: 'var(--c-elevate-dim)' },
-  dial:    { solid: 'rgb(var(--c-dial))',    faded: 'rgb(var(--c-dial) / 0.3)',    bg: 'var(--c-dial-dim)' },
-  voice:   { solid: 'rgb(var(--c-voice))',   faded: 'rgb(var(--c-voice) / 0.3)',   bg: 'var(--c-voice-dim)' },
-  learn:   { solid: 'rgb(var(--c-learn))',   faded: 'rgb(var(--c-learn) / 0.3)',   bg: 'var(--c-learn-dim)' },
+const accents: Record<CommandKey, { solid: string; faded: string; bg: string }> = {
+  review: { solid: 'rgb(var(--c-review))',  faded: 'rgb(var(--c-review) / 0.3)',  bg: 'var(--c-review-dim)' },
+  fix:    { solid: 'rgb(var(--c-fix))',     faded: 'rgb(var(--c-fix) / 0.3)',     bg: 'var(--c-fix-dim)' },
+  ship:   { solid: 'rgb(var(--c-ship))',    faded: 'rgb(var(--c-ship) / 0.3)',    bg: 'var(--c-ship-dim)' },
+  style:  { solid: 'rgb(var(--c-style))',   faded: 'rgb(var(--c-style) / 0.3)',   bg: 'var(--c-style-dim)' },
+  words:  { solid: 'rgb(var(--c-words))',   faded: 'rgb(var(--c-words) / 0.3)',   bg: 'var(--c-words-dim)' },
 };
 
-// ─── Track drag offsets per node (persisted across tab switches) ──
+// ─── Track drag offsets per node ──────────────────────────────
 const dragOffsets: Map<string, { dx: number; dy: number }> = new Map();
-// Stagger offsets per command node — seeded once per page load
 const staggerOffsets: Map<string, { dx: number; dy: number }> = new Map();
-let activeModule: Module = 'scan';
+let activeCommand: CommandKey = 'review';
 
-// Pre-compute stagger offsets for all modules so layout is deterministic
+// Pre-compute stagger offsets for mode nodes
 function initStaggerOffsets(): void {
-  moduleOrder.forEach(mod => {
-    const cmds = getCommandsByModule(mod);
-    cmds.forEach((cmd, i) => {
-      const nodeId = `cmd-${cmd.name}`;
+  commandOrder.forEach(cmdKey => {
+    const cmd = getCommand(cmdKey);
+    cmd.modes.forEach((mode, i) => {
+      const nodeId = `mode-${cmdKey}-${mode.flag}`;
       if (staggerOffsets.has(nodeId)) return;
-      // Cascade: each card shifts right progressively, with small vertical jitter
-      const dx = i * 22 + (Math.random() - 0.5) * 14;
-      const dy = (Math.random() - 0.5) * 8;
+      const dx = i * 18 + (Math.random() - 0.5) * 12;
+      const dy = (Math.random() - 0.5) * 6;
       staggerOffsets.set(nodeId, { dx, dy });
     });
   });
@@ -59,53 +55,54 @@ export function renderConsoleMindmap(): string {
       <!-- Nodes layer -->
       <div class="relative p-6 md:p-8 flex items-start gap-10 md:gap-16" style="z-index: 2; min-width: 640px;">
 
-        <!-- Module nodes -->
-        <div class="flex flex-col gap-3 shrink-0 pt-2" id="module-rail">
-          ${moduleOrder.map((mod, i) => {
-            const info = modules[mod];
-            const a = accents[mod];
-            const count = getCommandsByModule(mod).length;
+        <!-- Command nodes (left rail) -->
+        <div class="flex flex-col gap-3 shrink-0 pt-2" id="command-rail">
+          ${commandOrder.map((cmdKey, i) => {
+            const meta = commandMeta[cmdKey];
+            const a = accents[cmdKey];
+            const cmd = getCommand(cmdKey);
             const isActive = i === 0;
             return `
               <div
-                class="module-node group relative rounded-xl border-2 transition-all duration-200 cursor-grab active:cursor-grabbing bg-surface"
-                data-node-id="mod-${mod}"
-                data-module="${mod}"
+                class="command-rail-node group relative rounded-xl border-2 transition-all duration-200 cursor-pointer bg-surface"
+                data-node-id="cmd-${cmdKey}"
+                data-command="${cmdKey}"
                 style="border-color: ${isActive ? a.solid : 'rgb(var(--ink-faint) / 0.15)'}; ${isActive ? `background: ${a.bg};` : ''}"
               >
-                <button class="module-btn flex items-center gap-2.5 px-5 py-3 text-left w-full" data-module="${mod}">
-                  <span class="module-dot w-2.5 h-2.5 rounded-full shrink-0 transition-all duration-200" style="background: ${isActive ? a.solid : 'rgb(var(--ink-faint) / 0.3)'};"></span>
-                  <span class="module-label text-[12px] uppercase tracking-[0.12em] font-semibold transition-colors duration-200" style="color: ${isActive ? a.solid : 'rgb(var(--ink-muted))'};">${info.label}</span>
-                  <span class="text-[10px] tabular-nums text-ink-muted ml-auto">${count}</span>
+                <button class="command-btn flex items-center gap-2.5 px-5 py-3 text-left w-full" data-command="${cmdKey}">
+                  <span class="command-dot w-2.5 h-2.5 rounded-full shrink-0 transition-all duration-200" style="background: ${isActive ? a.solid : 'rgb(var(--ink-faint) / 0.3)'};"></span>
+                  <div class="flex flex-col">
+                    <span class="command-label text-[13px] font-semibold transition-colors duration-200" style="color: ${isActive ? a.solid : 'rgb(var(--ink-muted))'};">${cmd.slash}</span>
+                    <span class="text-[10px] text-ink-faint leading-tight mt-0.5">${meta.tagline}</span>
+                  </div>
+                  <span class="text-[10px] tabular-nums text-ink-muted ml-auto">${cmd.modes.length}</span>
                 </button>
               </div>
             `;
           }).join('')}
         </div>
 
-        <!-- Command nodes -->
-        <div class="flex-1 flex items-start relative" style="min-height: 480px; max-width: 420px;" id="branch-area">
-          ${moduleOrder.map((mod, i) => renderCommandSet(mod, i === 0)).join('')}
+        <!-- Mode nodes (branch area) -->
+        <div class="flex-1 flex items-start relative" style="max-width: 420px;" id="branch-area">
+          ${commandOrder.map((cmdKey, i) => renderModeSet(cmdKey, i === 0)).join('')}
         </div>
       </div>
     </div>
   `;
 }
 
-function renderCommandSet(mod: Module, active: boolean): string {
-  const cmds = getCommandsByModule(mod);
-  const a = accents[mod];
-  // Tighter gap for modules with many commands
-  const gap = cmds.length > 5 ? 'gap-1.5' : cmds.length > 3 ? 'gap-2' : 'gap-3';
+function renderModeSet(cmdKey: CommandKey, active: boolean): string {
+  const cmd = getCommand(cmdKey);
+  const a = accents[cmdKey];
+  const gap = cmd.modes.length > 6 ? 'gap-1.5' : cmd.modes.length > 4 ? 'gap-2' : 'gap-3';
 
   return `
     <div
-      class="command-set absolute inset-0 flex flex-col pt-2 ${gap} transition-opacity duration-300 ${active ? 'opacity-100' : 'opacity-0 pointer-events-none'}"
-      data-commands="${mod}"
+      class="mode-set flex flex-col pt-2 ${gap} w-full ${active ? '' : 'hidden'}"
+      data-modes="${cmdKey}"
     >
-      ${cmds.map(cmd => {
-        const nodeId = `cmd-${cmd.name}`;
-        // Use stagger offset, or preserved drag offset if user moved it
+      ${cmd.modes.map(mode => {
+        const nodeId = `mode-${cmdKey}-${mode.flag}`;
         if (!dragOffsets.has(nodeId)) {
           const s = getStaggerOffset(nodeId);
           dragOffsets.set(nodeId, { dx: s.dx, dy: s.dy });
@@ -113,20 +110,19 @@ function renderCommandSet(mod: Module, active: boolean): string {
         const offset = dragOffsets.get(nodeId)!;
         return `
         <div
-          class="command-node group relative rounded-xl border border-ink-faint/15 bg-surface shadow-sm hover:shadow-md transition-shadow duration-150 cursor-grab active:cursor-grabbing"
+          class="mode-node group relative rounded-xl border border-ink-faint/15 bg-surface shadow-sm hover:shadow-md transition-shadow duration-150 cursor-grab active:cursor-grabbing"
           data-node-id="${nodeId}"
-          data-command="${cmd.name}"
-          data-module="${mod}"
+          data-mode="${mode.flag}"
+          data-command="${cmdKey}"
           style="transform: translate(${offset.dx}px, ${offset.dy}px);"
         >
           <div class="flex items-start gap-3 px-4 py-2.5">
             <span class="w-2.5 h-2.5 rounded-full shrink-0 mt-1" style="background: ${a.solid};"></span>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-0.5">
-                <span class="text-[11px] font-bold tracking-[0.1em]" style="color: ${a.solid};">${cmd.key}</span>
-                <span class="text-[13px] text-ink font-semibold">${cmd.slash}</span>
+                <span class="text-[13px] text-ink font-semibold">${cmd.slash} ${mode.flag}</span>
               </div>
-              <span class="text-[11px] text-ink-muted leading-relaxed">${cmd.shortDescription || cmd.description}</span>
+              <span class="text-[11px] text-ink-muted leading-relaxed">${mode.description}</span>
             </div>
           </div>
         </div>
@@ -137,14 +133,14 @@ function renderCommandSet(mod: Module, active: boolean): string {
 
 // ─── Command detail modal ─────────────────────────────────────
 
-function showCommandModal(cmd: Command): void {
-  const a = accents[cmd.module];
-  const info = modules[cmd.module];
+function showCommandModal(cmd: Command, activeMode: string = ''): void {
+  const a = accents[cmd.commandKey];
+  const meta = commandMeta[cmd.commandKey];
 
-  // Parse example into command + description
-  const exParts = cmd.example?.split(' — ') || [];
-  const exCmd = exParts[0] || `${cmd.slash} ./src/components/Example.tsx`;
-  const exDesc = exParts[1] || cmd.description;
+  // Find the active mode object
+  const activeModeObj = cmd.modes.find(m => m.flag === activeMode);
+  const displayTitle = activeMode ? `${cmd.slash} ${activeMode}` : cmd.slash;
+  const displayDescription = activeModeObj ? activeModeObj.description : cmd.description;
 
   const modal = document.createElement('div');
   modal.id = 'command-modal';
@@ -154,14 +150,12 @@ function showCommandModal(cmd: Command): void {
     <div class="absolute inset-0 bg-ink/10 backdrop-blur-sm" id="modal-backdrop"></div>
 
     <!-- Card -->
-    <div class="relative bg-surface rounded-2xl border border-ink-faint/15 shadow-xl w-full max-w-lg overflow-hidden">
+    <div class="relative bg-surface rounded-2xl border border-ink-faint/15 shadow-xl w-full max-w-lg overflow-hidden max-h-[85vh] overflow-y-auto">
       <!-- Header -->
       <div class="flex items-center gap-3 px-6 py-4 border-b border-ink-faint/10">
         <span class="w-3 h-3 rounded-full" style="background: ${a.solid};"></span>
-        <span class="text-lg font-bold tracking-wider text-ink">${cmd.key}</span>
-        <span class="text-sm text-ink font-semibold">${cmd.slash}</span>
+        <span class="text-lg font-bold text-ink">${displayTitle}</span>
         <span class="flex-1"></span>
-        <span class="text-[10px] text-ink-faint uppercase tracking-[0.15em]">${info.label}</span>
         <button class="ml-3 text-ink-faint hover:text-ink transition-colors" id="modal-close">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
@@ -169,38 +163,48 @@ function showCommandModal(cmd: Command): void {
 
       <!-- Body -->
       <div class="px-6 py-5">
-        <div class="text-[10px] text-ink-faint uppercase tracking-widest mb-1.5">About</div>
-        <p class="text-sm text-ink leading-relaxed">${cmd.description}</p>
+        <p class="text-xs text-ink leading-relaxed mb-5">${displayDescription}</p>
+
+        <div class="text-[10px] text-ink-faint uppercase tracking-widest mb-3">${activeMode ? 'All modes' : 'Modes'}</div>
+        <div class="space-y-2.5">
+          ${cmd.modes.map(m => {
+            const isActive = m.flag === activeMode;
+            return `
+            <div class="flex items-start gap-3 rounded-lg px-2 py-1.5 -mx-2 ${isActive ? 'bg-surface-raised' : ''}" data-modal-mode="${m.flag}">
+              <code class="text-[11px] font-semibold shrink-0 px-2 py-0.5 rounded border whitespace-nowrap ${isActive ? 'border-current text-ink' : 'bg-surface-raised border-ink-faint/10 text-ink'}" style="${isActive ? `border-color: ${a.solid}; color: ${a.solid};` : ''}">${m.flag}</code>
+              <span class="text-[11px] leading-relaxed ${isActive ? 'text-ink' : 'text-ink-muted'}">${m.description}</span>
+            </div>
+          `}).join('')}
+        </div>
       </div>
 
-      <!-- Example -->
-      <div class="mx-6 mb-6 rounded-lg border border-ink-faint/10 bg-canvas overflow-hidden">
-        <div class="px-4 py-2 border-b border-ink-faint/10">
-          <span class="text-[9px] text-ink-faint uppercase tracking-widest">Example workflow</span>
-        </div>
-        <div class="px-4 py-3 space-y-2">
-          <code class="text-[12px] text-ink block">
-            <span class="text-ink-faint">$</span> <span style="color: ${a.solid};">${exCmd}</span>
-          </code>
-          <p class="text-[11px] text-ink-muted leading-relaxed">${exDesc}</p>
-        </div>
-      </div>
     </div>
   `;
 
   document.body.appendChild(modal);
 
-  // Close handlers
-  const close = () => modal.remove();
+  const close = () => { modal.remove(); document.removeEventListener('keydown', onKey); };
   document.getElementById('modal-backdrop')?.addEventListener('click', (e) => { e.stopPropagation(); close(); });
   document.getElementById('modal-close')?.addEventListener('click', (e) => { e.stopPropagation(); close(); });
   const onKey = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); }
+    if (e.key === 'Escape') close();
   };
   document.addEventListener('keydown', onKey);
+
+  // Click a mode row to switch context within the modal
+  modal.querySelectorAll<HTMLElement>('[data-modal-mode]').forEach(row => {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const flag = row.dataset.modalMode!;
+      if (flag === activeMode) return;
+      close();
+      showCommandModal(cmd, flag);
+    });
+  });
 }
 
-// ─── SVG Connectors (dashed + arrowheads) ─────────────────────
+// ─── SVG Connectors ──────────────────────────────────────────
 
 function drawConnectors(): void {
   const svg = document.getElementById('connector-svg');
@@ -208,40 +212,35 @@ function drawConnectors(): void {
   if (!svg || !canvas) return;
 
   const rect = canvas.getBoundingClientRect();
-  const mod = activeModule;
-  const a = accents[mod];
+  const cmdKey = activeCommand;
+  const a = accents[cmdKey];
 
-  // Find the active module node
-  const moduleEl = canvas.querySelector(`.module-node[data-module="${mod}"]`) as HTMLElement;
-  if (!moduleEl) return;
+  const commandEl = canvas.querySelector(`.command-rail-node[data-command="${cmdKey}"]`) as HTMLElement;
+  if (!commandEl) return;
 
-  const mBox = moduleEl.getBoundingClientRect();
+  const mBox = commandEl.getBoundingClientRect();
   const mRightX = mBox.right - rect.left;
   const mCenterY = mBox.top + mBox.height / 2 - rect.top;
 
-  // Find visible command nodes
-  const cmdEls = canvas.querySelectorAll<HTMLElement>(`.command-set[data-commands="${mod}"] .command-node`);
-  if (!cmdEls.length) { svg.innerHTML = ''; return; }
+  const modeEls = canvas.querySelectorAll<HTMLElement>(`.mode-set[data-modes="${cmdKey}"] .mode-node`);
+  if (!modeEls.length) { svg.innerHTML = ''; return; }
 
-  // Collect command positions
-  const cmdPositions: { x: number; y: number }[] = [];
-  cmdEls.forEach(el => {
+  const modePositions: { x: number; y: number }[] = [];
+  modeEls.forEach(el => {
     const b = el.getBoundingClientRect();
-    // Skip if not laid out (opacity 0 sets still have dimensions in DOM)
     if (b.width === 0) return;
-    cmdPositions.push({
+    modePositions.push({
       x: b.left - rect.left,
       y: b.top + b.height / 2 - rect.top,
     });
   });
 
-  if (!cmdPositions.length) { svg.innerHTML = ''; return; }
+  if (!modePositions.length) { svg.innerHTML = ''; return; }
 
   const midX = mRightX + 32;
   let paths = '';
 
-  // For each command: right-angle path, circle only at command end
-  cmdPositions.forEach(cp => {
+  modePositions.forEach(cp => {
     paths += `<path
       d="M ${mRightX + 2} ${mCenterY} L ${midX} ${mCenterY} L ${midX} ${cp.y} L ${cp.x - 6} ${cp.y}"
       fill="none"
@@ -253,7 +252,6 @@ function drawConnectors(): void {
 
   svg.innerHTML = paths;
 }
-
 
 // ─── Drag handling ────────────────────────────────────────────
 
@@ -271,7 +269,7 @@ function initDraggable(el: HTMLElement): void {
   let isPointerDown = false;
   let hasDragged = false;
   let originX = 0, originY = 0;
-  const DRAG_THRESHOLD = 8; // px before a click becomes a drag
+  const DRAG_THRESHOLD = 8;
 
   const onDown = (e: MouseEvent | TouchEvent) => {
     isPointerDown = true;
@@ -289,7 +287,6 @@ function initDraggable(el: HTMLElement): void {
     const dx = point.clientX - originX;
     const dy = point.clientY - originY;
 
-    // Only start dragging after threshold
     if (!hasDragged && Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
 
     if (!hasDragged) {
@@ -321,7 +318,6 @@ function initDraggable(el: HTMLElement): void {
   document.addEventListener('mouseup', onUp);
   document.addEventListener('touchend', onUp);
 
-  // Prevent click propagation after a real drag
   el.addEventListener('click', (e) => {
     if (hasDragged) {
       e.stopPropagation();
@@ -334,15 +330,13 @@ function initDraggable(el: HTMLElement): void {
 // ─── Init ─────────────────────────────────────────────────────
 
 export function initMindmapInteractions(): void {
-  const moduleBtns = document.querySelectorAll<HTMLButtonElement>('.module-btn');
-  const commandSets = document.querySelectorAll<HTMLElement>('.command-set');
+  const commandBtns = document.querySelectorAll<HTMLButtonElement>('.command-btn');
+  const modeSets = document.querySelectorAll<HTMLElement>('.mode-set');
 
-  // Command nodes only are draggable — module tabs stay fixed
-  // Command nodes — apply random offsets then init drag
-  const initCommandDrag = () => {
-    document.querySelectorAll<HTMLElement>(`.command-set[data-commands="${activeModule}"] .command-node`).forEach(el => {
+  // Init drag on mode nodes for active command
+  const initModeDrag = () => {
+    document.querySelectorAll<HTMLElement>(`.mode-set[data-modes="${activeCommand}"] .mode-node`).forEach(el => {
       const nodeId = el.dataset.nodeId!;
-      // Apply random offset if no user drag has been recorded
       if (!dragOffsets.has(nodeId)) {
         const s = getStaggerOffset(nodeId);
         dragOffsets.set(nodeId, { dx: s.dx, dy: s.dy });
@@ -350,74 +344,70 @@ export function initMindmapInteractions(): void {
       initDraggable(el);
     });
   };
-  initCommandDrag();
+  initModeDrag();
 
-  // Draw initial connectors (after layout settles)
+  // Draw initial connectors
   requestAnimationFrame(() => setTimeout(drawConnectors, 100));
 
-  // Module click → switch active
-  moduleBtns.forEach((btn, index) => {
+  // Command click → switch active
+  commandBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const mod = btn.getAttribute('data-module') as Module;
-      if (mod === activeModule) return;
-      activeModule = mod;
+      const cmdKey = btn.getAttribute('data-command') as CommandKey;
+      if (cmdKey === activeCommand) return;
+      activeCommand = cmdKey;
 
-      // Preserve command positions — don't clear drag offsets
+      // Update command rail styles
+      document.querySelectorAll<HTMLElement>('.command-rail-node').forEach(node => {
+        const key = node.dataset.command as CommandKey;
+        const a = accents[key];
+        const active = key === cmdKey;
 
-      // Update module node styles
-      document.querySelectorAll<HTMLElement>('.module-node').forEach((node, ni) => {
-        const m = moduleOrder[ni];
-        const ma = accents[m];
-        const active = m === mod;
+        node.style.borderColor = active ? a.solid : 'rgb(var(--ink-faint) / 0.15)';
+        node.style.background = active ? a.bg : 'rgb(var(--surface))';
 
-        node.style.borderColor = active ? ma.solid : 'rgb(var(--ink-faint) / 0.15)';
-        node.style.background = active ? ma.bg : 'rgb(var(--surface))';
-
-        const dot = node.querySelector('.module-dot') as HTMLElement;
-        const label = node.querySelector('.module-label') as HTMLElement;
-        if (dot) dot.style.background = active ? ma.solid : 'rgb(var(--ink-faint) / 0.3)';
-        if (label) label.style.color = active ? ma.solid : 'rgb(var(--ink-muted))';
+        const dot = node.querySelector('.command-dot') as HTMLElement;
+        const label = node.querySelector('.command-label') as HTMLElement;
+        if (dot) dot.style.background = active ? a.solid : 'rgb(var(--ink-faint) / 0.3)';
+        if (label) label.style.color = active ? a.solid : 'rgb(var(--ink-muted))';
       });
 
-      // Apply saved positions to incoming command nodes BEFORE making visible
-      document.querySelectorAll<HTMLElement>(`.command-set[data-commands="${mod}"] .command-node`).forEach(el => {
+      // Apply saved positions to incoming mode nodes before making visible
+      document.querySelectorAll<HTMLElement>(`.mode-set[data-modes="${cmdKey}"] .mode-node`).forEach(el => {
         const nodeId = el.dataset.nodeId!;
         if (!dragOffsets.has(nodeId)) {
-          const r = getRandomOffset(nodeId);
-          dragOffsets.set(nodeId, { dx: r.dx, dy: r.dy });
+          const s = getStaggerOffset(nodeId);
+          dragOffsets.set(nodeId, { dx: s.dx, dy: s.dy });
         }
         const saved = dragOffsets.get(nodeId)!;
         el.style.transform = `translate(${saved.dx}px, ${saved.dy}px)`;
       });
 
-      // Switch command sets (opacity only, no scale to avoid jank)
-      commandSets.forEach(s => {
-        const isThis = s.getAttribute('data-commands') === mod;
-        s.classList.toggle('opacity-100', isThis);
-        s.classList.toggle('opacity-0', !isThis);
-        s.classList.toggle('pointer-events-none', !isThis);
+      // Switch mode sets
+      modeSets.forEach(s => {
+        const isThis = s.getAttribute('data-modes') === cmdKey;
+        s.classList.toggle('hidden', !isThis);
       });
 
-      // Clear connectors, then redraw after fade completes
+      // Clear then redraw connectors
       const svg = document.getElementById('connector-svg');
       if (svg) svg.innerHTML = '';
 
       setTimeout(() => {
-        initCommandDrag();
+        initModeDrag();
         drawConnectors();
       }, 320);
     });
   });
 
-  // Command click → modal
+  // Mode node click → show command detail modal with active mode
   document.addEventListener('click', (e) => {
-    // Don't open if modal is already showing
     if (document.getElementById('command-modal')) return;
-    const node = (e.target as HTMLElement).closest('.command-node') as HTMLElement;
+    const node = (e.target as HTMLElement).closest('.mode-node') as HTMLElement;
     if (!node) return;
-    const name = node.dataset.command;
-    const cmd = commands.find(c => c.name === name);
-    if (cmd) showCommandModal(cmd);
+    const cmdKey = node.dataset.command as CommandKey;
+    const modeFlag = node.dataset.mode || '';
+    const cmd = commands.find(c => c.commandKey === cmdKey);
+    if (cmd) showCommandModal(cmd, modeFlag);
   });
 
   // Redraw on resize
